@@ -22,7 +22,7 @@ Some examples for data bag entries:
   }
 }
 ```
-### Create a user overwritting all the basic user attributes:
+### Create a user overwritting some basic user attributes:
 ```
 {
   "id": "common_secrets",
