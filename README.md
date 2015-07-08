@@ -57,7 +57,7 @@ Some examples for data bag entries:
   }
 }
 ```
-### Create a user and set some account/password expire attributes:
+### Create a user and set account/password expire attributes:
 ```
 {
   "id": "common_secrets",
