@@ -85,7 +85,8 @@ Some examples for data bag entries:
 ```
 
 The above can be combined to give the desired result.
-The attributes for the user LWRP (used in the recipe) and can be set in the data bag are:
+
+The attributes for the user LWRP (used in the recipe) that can be set in the data bag are:
 ```
 uid
 home
