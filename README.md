@@ -10,7 +10,7 @@ The recipe logic is driven by the user's records in the data bag. Data bag name 
 
 User creation on nodes is handle by declaring a list of groups on the node and then subscribing the user to at least one of those groups in the data bag. The groups that the node declares and the groups that the user subscribes to are reflected as unix groups on the nodes. The user is granted membership to the groups is subscribed to. Group declaration on the node can be like:
 
-node.default[<cookbook_name>]['node_groups'] = ['web', 'admin', 'test']
+```node.default[<cookbook_name>]['node_groups'] = ['web', 'admin', 'test']```
 
 'Sudo to root' priviledges are handled again by subscribing the user to at least one of the groups that the node declares.
 
