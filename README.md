@@ -2,12 +2,17 @@
 Proposal for templating user management
 
 Scope:
- * Handle user creation / lock / removal (per role)
+ * Handle user creation + authorized keys
  * Handle account/password expires for user
- * Handle sudo entries for user (per role)
- * Handle authorized_keys for user
- 
-The recipe logic is driven by the user's records in the data bag. Data bag name is assumed to be the name of the environment and the item is "common_secrets".
+ * Handle sudo entries for user
+
+The recipe logic is driven by the user's records in the data bag. Data bag name is assumed to be the name of the environment and the item is "users".
+
+User creation on nodes is handle by declaring a list of groups on the node and then subscribing the user to at least one of those groups in the data bag. The groups that the node declares and the groups that the user subscribes to are reflected as unix groups on the nodes. The user is granted membership to the groups is subscribed to. Group declaration on the node can be like:
+
+node.default[<cookbook_name>]['node_groups'] = ['web', 'admin', 'test']
+
+'Sudo to root' priviledges are handled again by subscribing the user to at least one of the groups that the node declares.
 
 Some examples for data bag entries:
  
@@ -31,27 +36,26 @@ Some examples for data bag entries:
       "uid": 1000,
       "home": "/var/www/my_site",
       "shell": "/bin/tcsh",
-      "password": "a_password_hash",
-      "comment": "my app user"
+      "password": "a_password_hash"
     }
   }
 }
 ```
 
-### Create a user on specific roles with sudo access on one of them and ssh keys:
+### Create a user on specific and subscribe the user to some groups. Also give sudo access.
 ```
 {
   "id": "common_secrets",
   "users": {
     "user3": {
-      "roles": [ "web", "app" ],
+      "groups": [ "web", "app" ],
       "authorized_keys": [
         "key1",
         "key2"
       ],
       "sudo": {
         "nopasswd": true,
-        "roles": [ "web" ]
+        "groups": [ "web" ]
       }
     }
   }
@@ -86,18 +90,13 @@ Some examples for data bag entries:
 
 The above can be combined to give the desired result.
 
-The attributes for the user LWRP (used in the recipe) that can be set in the data bag are:
-```
-uid
-home
-shell
-comment
-manage_home
-password
-force
-non_unique
-action
-```
+All the attributes that the user_account LWRP exposes can be overriden in the data bag. Some membership scenarios that need to be explained:
+
+1) Assuming that the user was subscribed to one of the groups that the node declares. The user will be created on that node. If subscription to the group is removed and that leaves the user with no subscriptions to groups that the node declares then then user is removed. 
+
+2) If subscription to a group is removed for a user but the user is still subscribed to a group that the node declares then we simply remove the membership for the unix group for that user.
+
+3) Sudo creation/removal follows the same logic as above.
 
 The account/password expire attributes that can be set in the data bag are
 ```
@@ -114,5 +113,3 @@ nopasswd
 commands
 defaults
 ```
-
-Authorized keys are handled by the ssh_authorize_key resource (https://github.com/onddo/ssh_authorized_keys-cookbook)
